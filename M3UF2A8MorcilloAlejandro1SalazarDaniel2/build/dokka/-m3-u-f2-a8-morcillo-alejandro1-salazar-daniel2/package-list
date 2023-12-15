@@ -1,0 +1,7 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:org.example////PointingToDeclaration/-m3-u-f2-a8-morcillo-alejandro1-salazar-daniel2/org.example/index.html
+$dokka.location:org.example/MainKt///PointingToDeclaration/-m3-u-f2-a8-morcillo-alejandro1-salazar-daniel2/org.example/-main-kt/index.html
+$dokka.location:org.example/MainKt/main/#/PointingToDeclaration/-m3-u-f2-a8-morcillo-alejandro1-salazar-daniel2/org.example/-main-kt/main.html
+org.example
+
