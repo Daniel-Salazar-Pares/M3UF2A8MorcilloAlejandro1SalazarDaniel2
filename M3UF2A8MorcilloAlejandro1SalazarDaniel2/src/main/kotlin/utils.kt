@@ -66,7 +66,7 @@ fun menu() {
     )
 }
 
-fun menuComandes() {
+fun menuJugar(taulell: MutableList<MutableList<String>>) {
     println(
         "Les comandes del prorgama son les següents:\n" +
                 "d/D -> Moure figura cap a la dreta\n" +
@@ -74,6 +74,15 @@ fun menuComandes() {
                 "t/T -> Tirar la peça cap abaix\n" +
                 "r/R -> Rendir-se"
     )
+    var entrada = ""
+    do {
+        val random = numAleatori()
+        var infoPosicioEntrada = moureFigura(entrada, taulell, random)
+        var posicioColumna = infoPosicioEntrada.first
+        entrada = infoPosicioEntrada.second
+        tirarPeçaAbaix(arrayFigures[random].figura, random, taulell.size, taulell, posicioColumna)
+        netejarColumnesPlenes(taulell, espai)
+    } while (entrada.uppercase() != "R")
 }
 
 /**
@@ -175,7 +184,6 @@ fun tirarPeçaAbaix(
                 }
             }
         }
-
         if (!colisio) {
             posicioFila++
         }
@@ -213,14 +221,13 @@ fun tetrisTitol() : String {
     return "${ColorANSI.VERMELL.codi}T${ColorANSI.TARONJA.codi}E${ColorANSI.GROC.codi}T${ColorANSI.VERD.codi}R${ColorANSI.BLAU.codi}I${ColorANSI.MORAT.codi}S${ColorANSI.RESET.codi}"
 }
 
-/*
-fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, random : Int) {
-    var comanda = entrada
+fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, random : Int) : Pair<Int, String> {
     var posicioColumna = taulell[0].size / 2
+    var comanda = entrada
     do {
         imprimirFiguraATaulell(arrayFigures[random].figura, taulell, posicioColumna)
-        comanda = scan.next()
-        when (comanda.uppercase()) {
+        comanda = scan.next().uppercase()
+        when (comanda) {
             "D" -> posicioColumna++
             "E" -> posicioColumna--
         }
@@ -229,6 +236,16 @@ fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, ran
         } else if (posicioColumna == -1) {
             posicioColumna++
         }
-    } while (comanda.uppercase() != "T" && comanda.uppercase() != "R")
+    } while (comanda != "T" && comanda != "R")
+    return Pair(posicioColumna, comanda)
+}
 
-}*/
+
+fun netejarColumnesPlenes(taulell: MutableList<MutableList<String>>, espai: Char) {
+    for (columna in 0 until taulell.size) {
+        if (" " !in taulell[columna]) {
+            taulell.removeAt(columna)
+            taulell.add(0, MutableList(taulell[0].size) { "$espai" })
+        }
+    }
+}
