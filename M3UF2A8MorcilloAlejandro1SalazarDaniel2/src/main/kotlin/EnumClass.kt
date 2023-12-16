@@ -1,15 +1,12 @@
 val bloc = '█'
 val espai = ' '
+val arrayFigures = arrayOf(Figures.FIGURA_CUB, Figures.FIGURA_L_RECTA, Figures.FIGURA_L_ESTIRADA, Figures.FIGURA_4_ENLINIA)
 enum class ColorANSI(val codi: String) {
     RESET("\u001B[0m"),
-    NEGRE("\u001B[30m"),
     VERMELL("\u001B[31m"),
     VERD("\u001B[32m"),
     GROC("\u001B[33m"),
     BLAU("\u001B[34m"),
-    MAGENTA("\u001B[35m"),
-    CIAN("\u001B[36m"),
-    BLANC("\u001B[37m"),
     TARONJA("\u001B[38;5;208m"),
     MORAT("\u001B[38;5;165m");
 }

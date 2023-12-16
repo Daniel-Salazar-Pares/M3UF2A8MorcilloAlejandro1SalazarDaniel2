@@ -21,23 +21,11 @@ fun tamanyTaulell(): Pair<Int, Int> {
     return Pair(width, height)
 }
 
-/**
- * Autor: Daniel Salazar
- * Data: 2023-12-16
- *
- * Funció que demana a l'usuari un número enter vàlid.
- *
- * @return El número enter ingressat per l'usuari
- */
-fun demanarNumeroEnter(): Int {
-    do {
-        if (!scan.hasNextInt()) {
-            println("Introdueixi un número valid: ")
-            scan.next()
-        }
-    } while (!scan.hasNextInt())
-    val numero = scan.nextInt()
-    return numero
+fun definirTaulell() : MutableList<MutableList<String>> {
+    var tamany = tamanyTaulell()
+    var width = tamany.first
+    var heigth = tamany.second
+    return MutableList(heigth) { MutableList(width) { "$espai" } }
 }
 
 /**
@@ -94,25 +82,30 @@ fun menuComandes() {
  *
  * Funció que mostra el taulell de Tetris amb les figures actuals.
  *
- * @param with Amplada del taulell
+ * @param width Amplada del taulell
  * @param heigth Altura del taulell
  * @param taulell Representació del taulell amb les figures
  */
-fun mostrarTaulell(with: Int, heigth: Int, taulell: MutableList<MutableList<String>>) {
-    for (fila in 0 until heigth) {
+fun mostrarTaulell(taulell: MutableList<MutableList<String>>) {
+    val height = taulell.size
+    val width = if (height > 0) taulell[0].size else 0
+
+    for (fila in 0 until height) {
         print('|')
-        for (columna in 0 until with) {
+        for (columna in 0 until width) {
             print(taulell[fila][columna])
         }
         print('|')
         println()
     }
+
     print(' ')
-    repeat(with) {
+    repeat(width) {
         print('¯')
     }
     println()
 }
+
 
 /**
  * Autor: Daniel Salazar
@@ -140,20 +133,19 @@ fun imprimirFigura(figura: Array<Array<String>>) {
  * @return Número aleatori
  */
 fun numAleatori(): Int {
-    val numeroAleatori = Random.nextInt(0, 4)
-    return numeroAleatori
+    return Random.nextInt(0, 4)
 }
 
 fun imprimirFiguraATaulell(
     figura: Array<Array<String>>,
-    with: Int,
-    heigth: Int,
     taulell: MutableList<MutableList<String>>,
     posicioColumna: Int
 ) {
+    val height = taulell.size
+    val width = if (height > 0) taulell[0].size else 0
     for (fila in 0 until 4) {
-        for (columna in -1..with) {
-            if (columna == -1 || columna == with) {
+        for (columna in -1..width) {
+            if (columna == -1 || columna == width) {
                 print(' ')
             } else if (fila < figura.size && columna - posicioColumna >= 0 && columna - posicioColumna < figura[fila].size && figura[fila][columna - posicioColumna] != espai.toString()) {
                 print(figura[fila][columna - posicioColumna])
@@ -161,7 +153,7 @@ fun imprimirFiguraATaulell(
         }
         println()
     }
-    mostrarTaulell(with, heigth, taulell)
+    mostrarTaulell(taulell)
 }
 
 fun tirarPeçaAbaix(
@@ -206,4 +198,37 @@ fun tirarPeçaAbaix(
     return error
 }
 
+fun imprimirFigures() {
+    imprimirFigura(Figures.FIGURA_CUB.figura)
+    println()
+    imprimirFigura(Figures.FIGURA_L_RECTA.figura)
+    println()
+    imprimirFigura(Figures.FIGURA_4_ENLINIA.figura)
+    println()
+    imprimirFigura(Figures.FIGURA_L_ESTIRADA.figura)
+}
 
+
+fun tetrisTitol() : String {
+    return "${ColorANSI.VERMELL.codi}T${ColorANSI.TARONJA.codi}E${ColorANSI.GROC.codi}T${ColorANSI.VERD.codi}R${ColorANSI.BLAU.codi}I${ColorANSI.MORAT.codi}S${ColorANSI.RESET.codi}"
+}
+
+/*
+fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, random : Int) {
+    var comanda = entrada
+    var posicioColumna = taulell[0].size / 2
+    do {
+        imprimirFiguraATaulell(arrayFigures[random].figura, taulell, posicioColumna)
+        comanda = scan.next()
+        when (comanda.uppercase()) {
+            "D" -> posicioColumna++
+            "E" -> posicioColumna--
+        }
+        if (posicioColumna + arrayFigures[random].figura[0].size-1 == taulell[0].size) {
+            posicioColumna--
+        } else if (posicioColumna == -1) {
+            posicioColumna++
+        }
+    } while (comanda.uppercase() != "T" && comanda.uppercase() != "R")
+
+}*/
