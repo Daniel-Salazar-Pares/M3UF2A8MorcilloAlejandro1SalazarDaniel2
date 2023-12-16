@@ -21,6 +21,13 @@ fun tamanyTaulell(): Pair<Int, Int> {
     return Pair(width, height)
 }
 
+/**
+ * Autor: Alejandro Morcillo
+ *
+ * Funció que defineix el taulell
+ *
+ * @return Taulell del tamany demanat
+ */
 fun definirTaulell() : MutableList<MutableList<String>> {
     var tamany = tamanyTaulell()
     var width = tamany.first
@@ -66,7 +73,13 @@ fun menu() {
     )
 }
 
-fun menuJugar(taulell: MutableList<MutableList<String>>) {
+/**
+ * Autor: Alejandro Morcillo i Daniel Salazar
+ *
+ * Funció del menu de joc
+ * @param taulell el taulell on es juga
+ */
+fun menuJugar(taulell: MutableList<MutableList<String>>){
     println(
         "Les comandes del prorgama son les següents:\n" +
                 "d/D -> Moure figura cap a la dreta\n" +
@@ -80,7 +93,7 @@ fun menuJugar(taulell: MutableList<MutableList<String>>) {
         var infoPosicioEntrada = moureFigura(entrada, taulell, random)
         var posicioColumna = infoPosicioEntrada.first
         entrada = infoPosicioEntrada.second
-        tirarPeçaAbaix(arrayFigures[random].figura, random, taulell.size, taulell, posicioColumna)
+        tirarPeçaAbaix(random, taulell, posicioColumna)
         netejarColumnesPlenes(taulell, espai)
     } while (entrada.uppercase() != "R")
 }
@@ -91,8 +104,6 @@ fun menuJugar(taulell: MutableList<MutableList<String>>) {
  *
  * Funció que mostra el taulell de Tetris amb les figures actuals.
  *
- * @param width Amplada del taulell
- * @param heigth Altura del taulell
  * @param taulell Representació del taulell amb les figures
  */
 fun mostrarTaulell(taulell: MutableList<MutableList<String>>) {
@@ -134,7 +145,7 @@ fun imprimirFigura(figura: Array<Array<String>>) {
 }
 
 /**
- * Autor: Daniel Salazar
+ * Autor: Daniel Salazar i Alejandro Morcillo
  * Data: 2023-12-16
  *
  * Funció que retorna un número aleatori entre 0 i 3.
@@ -145,11 +156,16 @@ fun numAleatori(): Int {
     return Random.nextInt(0, 4)
 }
 
-fun imprimirFiguraATaulell(
-    figura: Array<Array<String>>,
-    taulell: MutableList<MutableList<String>>,
-    posicioColumna: Int
-) {
+/**
+ * Autor: Daniel Salazar i Alejandro Morcillo
+ *
+ * Funció que imprimeix la figura escollida a la part d'adalt del taulell
+ *
+ * @param figura Figura declarada
+ * @param taulell Taulell de joc
+ * @param posicioColumna Meitat del taulell
+ */
+fun imprimirFiguraATaulell(figura: Array<Array<String>>, taulell: MutableList<MutableList<String>>, posicioColumna: Int) {
     val height = taulell.size
     val width = if (height > 0) taulell[0].size else 0
     for (fila in 0 until 4) {
@@ -165,17 +181,24 @@ fun imprimirFiguraATaulell(
     mostrarTaulell(taulell)
 }
 
+/**
+ * Autor: Alejandro Morcillo i Daniel Salazar
+ *
+ * Funció que posiciona el objecte al punt més baix posible del taulell, i en cas que no pugui, perd el joc
+ * @param random És la posició que defineix el objecte
+ * @param taulell Taulell de joc
+ * @param posicioColumna Posició de la columna
+ */
 fun tirarPeçaAbaix(
-    figura: Array<Array<String>>,
     random: Int,
-    heigth: Int,
     taulell: MutableList<MutableList<String>>,
     posicioColumna: Int
-): Boolean {
+) {
     var posicioFila = 0
     var colisio = false
+    val figura = arrayFigures[random].figura
 
-    while (posicioFila + figura.size < heigth && !colisio) {
+    while (posicioFila + figura.size < taulell.size && !colisio) {
         for (i in figura.indices) {
             for (j in figura[i].indices) {
                 if ((figura[i][j] != espai.toString() && taulell[posicioFila + i][posicioColumna + j] != "$espai") && !colisio) {
@@ -188,23 +211,31 @@ fun tirarPeçaAbaix(
             posicioFila++
         }
     }
-    var error = false
 
-    for (i in figura.indices) {
-        for (j in figura[i].indices) {
-            if (figura[i][j] != espai.toString()) {
-                when (random) {
-                    0 -> taulell[posicioFila + i][posicioColumna + j] = "${ColorANSI.VERMELL.codi}$bloc${ColorANSI.RESET.codi}"
-                    1 -> taulell[posicioFila + i][posicioColumna + j] = "${ColorANSI.VERD.codi}$bloc${ColorANSI.RESET.codi}"
-                    2 -> taulell[posicioFila + i][posicioColumna + j] = "${ColorANSI.TARONJA.codi}$bloc${ColorANSI.RESET.codi}"
-                    3 -> taulell[posicioFila + i][posicioColumna + j] = "${ColorANSI.BLAU.codi}$bloc${ColorANSI.RESET.codi}"
+    val color = when (random) {
+        0 -> ColorANSI.VERMELL
+        1 -> ColorANSI.VERD
+        2 -> ColorANSI.TARONJA
+        3 -> ColorANSI.BLAU
+        else -> null
+    }
+
+    color?.let {
+        for (i in figura.indices) {
+            for (j in figura[i].indices) {
+                val fila = posicioFila + i
+                val columna = posicioColumna + j
+
+                if (fila in 0 until taulell.size && columna in 0 until taulell[0].size && figura[i][j] != espai.toString()) {
+                    taulell[fila][columna] = "${it.codi}$bloc${ColorANSI.RESET.codi}"
                 }
             }
-
         }
     }
-    return error
 }
+
+
+
 
 fun imprimirFigures() {
     imprimirFigura(Figures.FIGURA_CUB.figura)
@@ -221,6 +252,17 @@ fun tetrisTitol() : String {
     return "${ColorANSI.VERMELL.codi}T${ColorANSI.TARONJA.codi}E${ColorANSI.GROC.codi}T${ColorANSI.VERD.codi}R${ColorANSI.BLAU.codi}I${ColorANSI.MORAT.codi}S${ColorANSI.RESET.codi}"
 }
 
+/**
+ * Autor: Alejandro Morcillo
+ *
+ * Funció que s'ocupa de moure l'objecte
+ *
+ * @param entrada És la comanda inicial
+ * @param taulell Taulell de joc
+ * @param random És la posició que defineix el objecte
+ *
+ * @return Un Pair qué conté la posició final i la comanda final
+ */
 fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, random : Int) : Pair<Int, String> {
     var posicioColumna = taulell[0].size / 2
     var comanda = entrada
@@ -240,6 +282,14 @@ fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, ran
     return Pair(posicioColumna, comanda)
 }
 
+
+/**
+ * Autor: Alejandro Morcillo i Daniel Salazar
+ *
+ * Funció que s'ocupa de netejar si una linia està plena d'objectes
+ *
+ * @param taulell Taulell de joc
+ */
 
 fun netejarColumnesPlenes(taulell: MutableList<MutableList<String>>, espai: Char) {
     for (columna in 0 until taulell.size) {
