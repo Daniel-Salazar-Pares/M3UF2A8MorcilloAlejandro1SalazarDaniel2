@@ -7,13 +7,11 @@ fun main() {
         menu()
         val opcio = demanarEnterCondicionat(0, 3)
         when (opcio) {
-            0 -> {
-                sortir = true
-            }
+            0 -> sortir = true
 
             1 -> {
-                taulell = definirTaulell()
                 println("Mida del taulell cambiada exitosament!")
+                taulell = definirTaulell()
             }
 
             2 -> {
@@ -21,9 +19,7 @@ fun main() {
                 mostrarTaulell(taulell)
             }
 
-            3 -> {
-                menuJugar(taulell)
-            }
+            3 -> sortir = menuJugar(taulell)
         }
 
     } while (!sortir)

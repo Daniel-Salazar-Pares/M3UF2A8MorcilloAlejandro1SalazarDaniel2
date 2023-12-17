@@ -29,9 +29,9 @@ fun tamanyTaulell(): Pair<Int, Int> {
  * @return Taulell del tamany demanat
  */
 fun definirTaulell() : MutableList<MutableList<String>> {
-    var tamany = tamanyTaulell()
-    var width = tamany.first
-    var heigth = tamany.second
+    val tamany = tamanyTaulell()
+    val width = tamany.first
+    val heigth = tamany.second
     return MutableList(heigth) { MutableList(width) { "$espai" } }
 }
 
@@ -79,7 +79,7 @@ fun menu() {
  * Funció del menu de joc
  * @param taulell el taulell on es juga
  */
-fun menuJugar(taulell: MutableList<MutableList<String>>){
+fun menuJugar(taulell: MutableList<MutableList<String>>) : Boolean {
     println(
         "Les comandes del prorgama son les següents:\n" +
                 "d/D -> Moure figura cap a la dreta\n" +
@@ -87,15 +87,17 @@ fun menuJugar(taulell: MutableList<MutableList<String>>){
                 "t/T -> Tirar la peça cap abaix\n" +
                 "r/R -> Rendir-se"
     )
-    var entrada = ""
+    var entrada: String
+    var sortir: Boolean
     do {
         val random = numAleatori()
-        var infoPosicioEntrada = moureFigura(entrada, taulell, random)
-        var posicioColumna = infoPosicioEntrada.first
+        val infoPosicioEntrada = moureFigura(taulell, random)
+        val posicioColumna = infoPosicioEntrada.first
         entrada = infoPosicioEntrada.second
-        tirarPeçaAbaix(random, taulell, posicioColumna)
+        sortir = tirarPecaAbaix(random, taulell, posicioColumna)
         netejarColumnesPlenes(taulell, espai)
-    } while (entrada.uppercase() != "R")
+    } while (entrada.uppercase() != "R" && !sortir)
+    return sortir
 }
 
 /**
@@ -184,34 +186,14 @@ fun imprimirFiguraATaulell(figura: Array<Array<String>>, taulell: MutableList<Mu
 /**
  * Autor: Alejandro Morcillo i Daniel Salazar
  *
- * Funció que posiciona el objecte al punt més baix posible del taulell, i en cas que no pugui, perd el joc
- * @param random És la posició que defineix el objecte
+ * Funció que pinta la peca
+ * @param figura És la figura a pintar
  * @param taulell Taulell de joc
  * @param posicioColumna Posició de la columna
+ * @param posicioFila Posició de la fila
+ * @param random El nombre de la posició del objecte
  */
-fun tirarPeçaAbaix(
-    random: Int,
-    taulell: MutableList<MutableList<String>>,
-    posicioColumna: Int
-) {
-    var posicioFila = 0
-    var colisio = false
-    val figura = arrayFigures[random].figura
-
-    while (posicioFila + figura.size < taulell.size && !colisio) {
-        for (i in figura.indices) {
-            for (j in figura[i].indices) {
-                if ((figura[i][j] != espai.toString() && taulell[posicioFila + i][posicioColumna + j] != "$espai") && !colisio) {
-                    posicioFila--
-                    colisio = true
-                }
-            }
-        }
-        if (!colisio) {
-            posicioFila++
-        }
-    }
-
+fun pintarPeca(taulell : MutableList<MutableList<String>>, random : Int, figura: Array<Array<String>>, posicioFila : Int, posicioColumna: Int) {
     val color = when (random) {
         0 -> ColorANSI.VERMELL
         1 -> ColorANSI.VERD
@@ -219,7 +201,6 @@ fun tirarPeçaAbaix(
         3 -> ColorANSI.BLAU
         else -> null
     }
-
     color?.let {
         for (i in figura.indices) {
             for (j in figura[i].indices) {
@@ -232,6 +213,61 @@ fun tirarPeçaAbaix(
             }
         }
     }
+}
+
+/**
+ * Autor: Alejandro Morcillo i Daniel Salazar
+ *
+ * Funció que posiciona el objecte al punt més baix
+ * @param figura És la figura a pintar
+ * @param taulell Taulell de joc
+ * @param posicioColumna Posició de la columna
+ * @return Un Pair que conté el nombre de colisions i la posicio en les files
+ */
+fun baixarPeca(taulell: MutableList<MutableList<String>>, figura: Array<Array<String>>, posicioColumna: Int) : Pair<Int, Int> {
+    var posicioFila = 0
+    var colisio = false
+    var countColisions = 0
+    while (posicioFila + figura.size < taulell.size && !colisio) {
+        for (i in figura.indices) {
+            for (j in figura[i].indices) {
+                if ((figura[i][j] != espai.toString() && (posicioFila + i in 0 until taulell.size && posicioColumna + j in 0 until taulell[0].size) && taulell[posicioFila + i][posicioColumna + j] != "$espai") && !colisio) {
+                    posicioFila--
+                    colisio = true
+                }
+            }
+        }
+        if (!colisio) {
+            countColisions++
+            posicioFila++
+        }
+    }
+    return Pair(posicioFila, countColisions)
+}
+
+/**
+ * Autor: Alejandro Morcillo i Daniel Salazar
+ *
+ * Funció que posiciona el objecte al punt més baix posible del taulell, i en cas que no pugui, perd el joc
+ * @param random És la posició que defineix el objecte
+ * @param taulell Taulell de joc
+ * @param posicioColumna Posició de la columna
+ */
+fun tirarPecaAbaix(random: Int, taulell: MutableList<MutableList<String>>, posicioColumna: Int) : Boolean {
+    val figura = arrayFigures[random].figura
+    var sortir = false
+
+    val infoColisions = baixarPeca(taulell, figura, posicioColumna)
+    val countColisions = infoColisions.second
+    val posicioFila = infoColisions.first
+
+
+    if (countColisions == 0) {
+        sortir = true
+        println("Has perdut, mala sort!")
+    }
+    else pintarPeca(taulell, random, figura, posicioFila, posicioColumna)
+    return sortir
 }
 
 
@@ -263,9 +299,9 @@ fun tetrisTitol() : String {
  *
  * @return Un Pair qué conté la posició final i la comanda final
  */
-fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, random : Int) : Pair<Int, String> {
+fun moureFigura(taulell: MutableList<MutableList<String>>, random: Int) : Pair<Int, String> {
     var posicioColumna = taulell[0].size / 2
-    var comanda = entrada
+    var comanda: String
     do {
         imprimirFiguraATaulell(arrayFigures[random].figura, taulell, posicioColumna)
         comanda = scan.next().uppercase()
@@ -279,6 +315,7 @@ fun moureFigura(entrada : String, taulell: MutableList<MutableList<String>>, ran
             posicioColumna++
         }
     } while (comanda != "T" && comanda != "R")
+
     return Pair(posicioColumna, comanda)
 }
 
